@@ -24,36 +24,52 @@ map.on("click", function (e) {
 
 // Load marker dari database
 async function loadMarkers(filterCategory = 'all') {
-  // Hapus semua marker yang ada
-  markerLayers.forEach(marker => map.removeLayer(marker));
-  markerLayers = [];
+  try {
+    // Hapus semua marker yang ada
+    markerLayers.forEach(marker => map.removeLayer(marker));
+    markerLayers = [];
 
-  const res = await fetch("http://localhost:5000/api/markers");
-  const data = await res.json();
-  allMarkers = data;
-
-  // Filter berdasarkan kategori
-  const filteredData = filterCategory === 'all' 
-    ? data 
-    : data.filter(m => m.category === filterCategory);
-
-  filteredData.forEach((m) => {
-    const marker = L.marker([m.lat, m.lng]).addTo(map);
+    const res = await fetch("https://web-production-dae5b.up.railway.app/api/markers");
     
-    const popupContent = `
-      <div style="min-width: 200px;">
-        <b style="font-size: 1.1em; color: #26a69a;">${getCategoryIcon(m.category)} ${m.category.toUpperCase()}</b>
-        <p style="margin: 8px 0;">${m.note}</p>
-        <div class="popup-buttons">
-          <button class="popup-btn btn-edit" data-id="${m._id}">✏️ Edit</button>
-          <button class="popup-btn btn-delete" data-id="${m._id}">🗑️ Hapus</button>
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    
+    const data = await res.json();
+    allMarkers = data;
+
+    // Filter berdasarkan kategori
+    const filteredData = filterCategory === 'all' 
+      ? data 
+      : data.filter(m => m.category === filterCategory);
+
+    filteredData.forEach((m) => {
+      const marker = L.marker([m.lat, m.lng]).addTo(map);
+      
+      const popupContent = `
+        <div style="min-width: 200px;">
+          <b style="font-size: 1.1em; color: #26a69a;">${getCategoryIcon(m.category)} ${m.category.toUpperCase()}</b>
+          <p style="margin: 8px 0;">${m.note}</p>
+          <div class="popup-buttons">
+            <button class="popup-btn btn-edit" data-id="${m._id}">✏️ Edit</button>
+            <button class="popup-btn btn-delete" data-id="${m._id}">🗑️ Hapus</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+      
+      marker.bindPopup(popupContent);
+      markerLayers.push(marker);
+    });
+  } catch (error) {
+    console.error("Error loading markers:", error);
     
-    marker.bindPopup(popupContent);
-    markerLayers.push(marker);
-  });
+    // Check kalau database belum ready
+    if (error.message.includes('buffering timed out')) {
+      alert("⚠️ Database belum ready!\n\nCek Railway Dashboard:\n1. Variables → Pastikan MONGO_URI sudah di-set\n2. MongoDB Atlas → Network Access → Allow 0.0.0.0/0");
+    } else {
+      alert("❌ Gagal memuat marker.\n\nError: " + error.message + "\n\nCek:\n- Koneksi internet\n- Railway logs di dashboard");
+    }
+  }
 }
 
 function getCategoryIcon(category) {
@@ -119,7 +135,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 
   if (editingMarkerId) {
     // UPDATE
-    const res = await fetch(`http://localhost:5000/api/markers/${editingMarkerId}`, {
+    const res = await fetch(`https://web-production-dae5b.up.railway.app/api/markers/${editingMarkerId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -130,7 +146,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     cancelEdit();
   } else {
     // CREATE
-    const res = await fetch("http://localhost:5000/api/markers", {
+    const res = await fetch("https://web-production-dae5b.up.railway.app/api/markers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -199,7 +215,7 @@ function confirmDelete(id) {
 document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
   if (!deleteMarkerId) return;
 
-  const res = await fetch(`http://localhost:5000/api/markers/${deleteMarkerId}`, {
+  const res = await fetch(`https://web-production-dae5b.up.railway.app/api/markers/${deleteMarkerId}`, {
     method: "DELETE",
   });
 
