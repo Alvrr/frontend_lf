@@ -15,6 +15,19 @@
       <p class="subtitle">Tandai lokasi favoritmu di peta</p>
     </header>
 
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <label for="filterCategory">🔍 Filter Kategori:</label>
+      <select id="filterCategory">
+        <option value="all">Semua Kategori</option>
+        <option value="makanan">🍔 Makanan</option>
+        <option value="minuman">☕ Minuman</option>
+        <option value="kecelakaan">⚠️ Kecelakaan</option>
+        <option value="favorit">⭐ Tempat Favorit</option>
+        <option value="lainnya">📌 Lainnya</option>
+      </select>
+    </div>
+
     <div class="main-content">
       <!-- Map Container -->
       <div class="map-wrapper">
@@ -23,7 +36,7 @@
 
       <!-- Form Container -->
       <div class="form-card">
-        <h3 class="form-title">✨ Tambah Marker Baru</h3>
+        <h3 class="form-title" id="formTitle">✨ Tambah Marker Baru</h3>
         
         <div class="form-group">
           <label for="category">Kategori</label>
@@ -45,6 +58,21 @@
         <button id="saveBtn" class="btn-save">
           <span>💾 Simpan Marker</span>
         </button>
+        <button id="cancelEditBtn" class="btn-cancel" style="display:none;">
+          <span>❌ Batal Edit</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Delete -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <h3>⚠️ Konfirmasi Hapus</h3>
+      <p>Apakah kamu yakin ingin menghapus marker ini?</p>
+      <div class="modal-buttons">
+        <button id="confirmDeleteBtn" class="btn-confirm">Ya, Hapus</button>
+        <button id="cancelDeleteBtn" class="btn-cancel-modal">Batal</button>
       </div>
     </div>
   </div>
